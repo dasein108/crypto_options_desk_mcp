@@ -300,12 +300,22 @@ async def _fetch_positions_for_category(
 async def get_user_options_positions(params: UserPositionsParams) -> Dict[str, Any]:
     try:
         result = await _fetch_positions_for_category("option", params.base_coin)
+        # Surface the real fetch error (e.g. auth/missing API key) instead of
+        # masking it with a KeyError on the absent 'unrealised_pnl' field.
+        if result.get("error"):
+            return {
+                "success": False,
+                "error": result["error"],
+                "base_coin": params.base_coin,
+                "category": "option",
+                "hint": "auth errors usually mean BYBIT_API_KEY / BYBIT_API_SECRET are unset",
+            }
         return {
             "success": True,
             "base_coin": params.base_coin,
             "category": "option",
             "total_positions": result["count"],
-            "total_unrealised_pnl": result["unrealised_pnl"],
+            "total_unrealised_pnl": result.get("unrealised_pnl", 0.0),
             "positions": result["positions"],
         }
     except Exception as e:
