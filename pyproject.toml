@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "trading-mcp"
+version = "0.1.0"
+description = "Model Context Protocol server exposing quant crypto-options analytics (GEX, vanna, skew, vol surface, indicators, portfolio greeks) as typed, read-only, dry-run-by-default tools for LLM agents."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "dasein" }]
+keywords = ["mcp", "model-context-protocol", "trading", "options", "crypto", "llm", "agent", "gex"]
+dependencies = [
+    "fastmcp>=2.0",
+    "pydantic>=2.0",
+    "httpx>=0.28.0",
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "scipy>=1.10",
+    "py-vollib>=1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.5"]
+
+[project.scripts]
+trading-mcp = "mcp_trading.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/mcp_trading",
+    "src/bybit_api",
+    "src/indicators_lib",
+    "src/options_lib",
+    "src/portfolio_lib",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
