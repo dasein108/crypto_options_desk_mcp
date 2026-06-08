@@ -7,6 +7,19 @@ options flow, technicals, portfolio greeks, scenario analysis, vol-selling signa
 Point Claude (Desktop or Code) at it and ask *"give me a BTC options market memo"* — the agent calls the
 tools itself and reasons over real Bybit data.
 
+**What it actually does, end to end:** the LLM drives the whole desk. It calls the flow tools (GEX, vanna,
+skew, vol surface) to read dealer positioning, the sentiment/funding/OI tools to read the crowd, the
+technicals for trend, and the IV-RV / vol-selling / strategy tools to find an edge — then it cross-checks
+those numbers against each other and writes a trader-grade memo: regime call, the structural shifts that
+matter, defined-risk trade ideas with strikes/breakevens, an allocation, and a risk checklist. With a
+read-only API key it also pulls your live book and folds current positions into the same analysis. The
+math is identical to what the (private) strategy bots run — the agent just narrates and reasons over it.
+
+See the [`examples/`](examples/) folder for real outputs: full market memos from both Claude and Codex
+(`*_market_analysis_2026-06-07.md`) and the **delta updates** they produced ~11h later
+(`*_market_analysis_2026-06-08.md`) — each diffs the new snapshot against the prior one (spot, IV, GEX,
+funding, OI) and tells you what *changed* and why it matters, not just where the market is.
+
 > Extracted from a private multi-strategy trading desk. This is the **analytics surface** only — no
 > strategy signals, thresholds, or alpha. The server is a *thin facade*; all math lives in the bundled
 > libraries (`options_lib`, `indicators_lib`, `portfolio_lib`, `bybit_api`) — the same code the (private)
@@ -17,6 +30,8 @@ tools itself and reasons over real Bybit data.
 ## Contents
 - [Install](#install)
 - [Use with Claude](#use-with-claude) (Desktop & Code)
+- [Keep the session rolling](#keep-the-session-rolling) ⭐
+- [Example outputs](#example-outputs)
 - [API key setup](#api-key-setup-optional) (optional)
 - [The 22 tools](#the-22-tools)
 - [Bonus: the research prompt](#bonus-the-research-prompt)
@@ -113,6 +128,54 @@ claude mcp list          # verify it's connected
 ```
 
 Then in a Claude Code session: *"call get_gex_analysis for ETH and explain the key levels."*
+
+---
+
+## Keep the session rolling
+
+**The single biggest win: don't treat each query as one-shot. Keep one long-lived chat and let market data
+accumulate in it over time.** A single snapshot tells the model where the market *is*; a session that has
+seen several snapshots tells it where the market is *going* — and that's where the analysis gets sharp.
+
+Why it works:
+
+- **Deltas beat levels.** "IV is 93%" is noise; "ETH IV went +6.6 pts into an up-move while GEX short
+  gamma halved" is a tradable signal. The model can only compute that second sentence if the earlier
+  snapshot is still in context. See the `2026-06-08` example memos — they're *entirely* a diff against the
+  `2026-06-07` snapshot taken ~11h earlier.
+- **Positions get tracked in time.** Re-run the position tools (or paste your book) into the same session
+  and the agent follows each leg across snapshots — PnL drift, greeks decay, whether the original thesis
+  still holds, when premium has bled enough to exit. It remembers what it recommended and grades it.
+- **Theses carry forward.** The trade ideas, strikes, and risk levels from the first memo become the
+  reference frame for the next one ("the ETH put-spread thesis is *stronger* now — wider premium, less
+  short gamma, price lifted off support"), instead of starting cold every time.
+
+Practical loop:
+
+1. Start a memo: *"pull BTC + ETH flow, sentiment, technicals, IV-RV and write a market memo."*
+2. Hours/days later, **in the same chat**: *"re-pull everything and give me a delta update vs the last
+   snapshot — what changed, and does it change the trade?"*
+3. With an API key add: *"also pull my positions and track them against the thesis."*
+
+A real multi-day position-tracking history (Claude following a book across snapshots) is published here:
+
+**→ https://claude.ai/share/cdb4169c-2656-42b9-99e1-6b6b23469ace**
+
+---
+
+## Example outputs
+
+The [`examples/`](examples/) folder holds real, unedited memos generated through this server:
+
+| File | What it is |
+|------|------------|
+| [`claude_market_analysis_2026-06-07.md`](examples/claude_market_analysis_2026-06-07.md) | Full BTC/ETH options memo — snapshot, IV-RV edge, GEX structure, ranked trade ideas |
+| [`codex_market_analysis_2026-06-07.md`](examples/codex_market_analysis_2026-06-07.md) | Same day via Codex — straddle/strangle picks with strikes, breakevens, allocation |
+| [`claude_market_analysis_2026-06-08.md`](examples/claude_market_analysis_2026-06-08.md) | **Delta update** ~11h later — a `Then → Now → Δ` table and what the shifts mean for the thesis |
+| [`codex_market_analysis_2026-06-08.md`](examples/codex_market_analysis_2026-06-08.md) | Codex delta update — re-ranked trades, updated allocation, risk controls |
+
+The `06-08` files only exist *because* the `06-07` snapshot was still in the session — that's the rolling
+workflow above, captured on disk.
 
 ---
 

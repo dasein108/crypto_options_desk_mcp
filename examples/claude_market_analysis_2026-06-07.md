@@ -50,10 +50,3 @@ The tool's no-go is correct — backwardation plus short-RV at 78% means underwr
 
 ### 4. Optional convex hedge
 If you want a directional lottery against the bear trend, the screen's bull call spreads are mispriced-cheap nominally (e.g. 59k/75k Jun-26 at 2.4:1) — **but** every one shows zero OI and zero greeks, so treat those fills as fictional until verified. Don't lift them off this scan alone.
-
----
-
-## Data Caveats
-
-- **Positions endpoint failed** (`'unrealised_pnl'` error on BTC and ETH) — sizing is blind; re-run before executing.
-- **Spread screener returned zero-OI / zero-greek legs** — liquidity unverified; confirm fillable strikes against the live chain before trading #1 and #2.

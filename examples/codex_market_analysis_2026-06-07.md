@@ -1,59 +1,46 @@
-# Crypto Options Market Analysis & Recommendations
+# Crypto Options Market Analysis
 
-**Date:** 07 Jun 2026, ~14:34 UTC
-**Author view:** Hedge fund manager
-**Source:** quant_analyst_tools (Bybit live data)
+Generated: 2026-06-07 14:32 UTC / 22:32 Asia/Makassar
 
----
+Source: trading_mcp live derivatives and options analysis.
 
-## Market Snapshot
+Note: This is not financial advice. These are risk-defined trade ideas based on current derivatives structure.
 
-| Metric | BTC | ETH |
-|---|---|---|
-| Spot | $62,629 | $1,630 |
-| Trend (4h) | Bearish, below SMA50 (-6.7%) | Bearish, below SMA50 (-11%) |
-| RSI | 44.6 (neutral) | 38.4 (neutral) |
-| ATR% percentile | 88th | 92nd |
-| ATM IV | 66.7% | 87.0% |
-| RV (30d, Garman-Klass) | 43.6% | 60.5% |
-| IV − RV (30d) | **+23.1 pts** | **+26.5 pts** |
-| Net GEX | -$224.7M | -$95.2M |
-| GEX flip level | $62,273 | $1,638 |
-| Key support / resistance | $61,500 / $63,000 | $1,600 / $1,725 |
-| Flow | Bearish (put-heavy, P/C 1.09) | — |
-| Breakout probability | 70% | 55% |
+## Current Position State
 
----
+No open options positions were reported by trading_mcp.
 
-## Read
+## Market Read
 
-The central tension is a **vol term-structure trap**. On a 30-day window both assets show a fat IV-over-RV premium (+23 BTC, +27 ETH) signalling SELL_VOL. But the covered-call signal pulled short-window RV at 78% with term structure in **backwardation (-21%)** and a hard no-go.
+BTC spot is around 62.2k. Sentiment is neutral, open interest is falling, and funding is slightly negative. GEX shows support near 61,500, resistance near 63,000, flip level around 62,189, with a high breakout probability reading. Net: BTC is coiled, but participation is weak, so large directional BTC exposure is unattractive.
 
-Translation: realized vol is spiking *right now* even though the trailing month was calm. Selling naked premium into backwardation with negative GEX (dealers short gamma, amplifying moves) is how vol sellers get carried out. Spot sits almost exactly on the BTC gamma flip ($62,629 vs $62,273) — an unstable pin.
+ETH spot is around 1,635. This is the strongest setup: bullish sentiment, open interest up 6.3% in 24h, OI at the 100th percentile, good liquidity, and very negative funding. Net: ETH has the cleanest momentum and participation confirmation.
 
-Skew is put-heavy on both, flow is bearish, trend is down but RSI/stochastics are oversold-to-neutral with a 5d bounce (+3% BTC, +4.5% ETH). This is a **chop-and-cascade regime**, not a clean directional one.
+SOL spot is around 65.2. Sentiment is bullish, but OI is down and participation is low. Funding is deeply negative, but market depth is only fair. Net: SOL is a smaller, more speculative volatility trade, not the core position.
 
----
+## Recommended Option Positions
 
-## Recommended Positions
+| Priority | Trade | Expiry | Est. Cost | Breakevens | View |
+|---|---:|---:|---:|---:|---|
+| 1 | Long `ETH-26JUN26-1650-C` + long `ETH-26JUN26-1650-P` | Jun 26 | `197.64` | `1452.36 / 1847.64` | Best liquid volatility plus trend participation setup |
+| 2 | Long `BTC-26JUN26-56000-P` + long `BTC-26JUN26-69000-C` | Jun 26 | `1521.11` | `54478.89 / 70521.11` | BTC breakout hedge without choosing direction |
+| 3 | Long `SOL-26JUN26-56-P` + long `SOL-26JUN26-84-C` | Jun 26 | `1.48` | `54.52 / 85.48` | Small convex SOL move trade only |
+| 4 | Alternative: long `SOL-19JUN26-65-C` + long `SOL-19JUN26-65-P` | Jun 19 | `7.18` | `57.82 / 72.18` | Shorter-dated gamma trade, higher theta burn |
 
-The structural edge is the elevated 30d term premium; the risk is near-term realized spikes and short gamma. Harvest premium with **defined risk and short duration**, not naked. Sizing is illustrative — scale to the book once the positions endpoint is restored.
+## Preferred Allocation
 
-### 1. ETH put credit spread (primary)
-Sell weekly/10-day ~1500 put, buy ~1400 put. ETH carries the richest IV (87%) and the fattest premium, and 1500–1600 is the GEX support shelf. Defined risk caps the backwardation tail. Highest reward-to-risk of the vol-selling set.
+- 60% of options risk budget: ETH Jun 26 1650 straddle.
+- 30%: BTC Jun 26 56k/69k long strangle.
+- 10%: SOL Jun 26 56/84 long strangle.
 
-### 2. BTC put credit spread (conservative strikes)
-Sell ~58k put / buy ~55k put, 7–10 DTE. Stay below the 61.5k support and well under the 62.3k flip so you're not selling at the pin. Harvest the 23-pt premium with the floor defined.
+## Execution Bias
 
-### 3. Skip the covered call this cycle
-The tool's no-go is correct — backwardation plus short-RV at 78% means underwriting a move you can't collect enough for. Wait for term structure to normalize to contango.
+Avoid selling naked strangles here. ETH and SOL funding are negative, open interest and positioning are unstable, and GEX breakout probability is elevated. Defined-risk long volatility is cleaner than short premium unless actively hedging intraday.
 
-### 4. Optional convex hedge
-If you want a directional lottery against the bear trend, the screen's bull call spreads are mispriced-cheap nominally (e.g. 59k/75k Jun-26 at 2.4:1) — **but** every one shows zero OI and zero greeks, so treat those fills as fictional until verified. Don't lift them off this scan alone.
+## Risk Controls
 
----
-
-## Data Caveats
-
-- **Positions endpoint failed** (`'unrealised_pnl'` error on BTC and ETH) — sizing is blind; re-run before executing.
-- **Spread screener returned zero-OI / zero-greek legs** — liquidity unverified; confirm fillable strikes against the live chain before trading #1 and #2.
+- Treat the full premium as max loss.
+- Exit long straddles or strangles if premium decays 35-45% without spot expansion.
+- Take partial profits at 80-120% premium gain.
+- For ETH, bullish confirmation improves above 1,725; failure below 1,600 changes the setup into downside momentum.
+- For BTC, the key range is 61,500-63,000; a clean break outside that zone is the trade trigger.
