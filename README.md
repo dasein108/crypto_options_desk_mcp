@@ -1,4 +1,4 @@
-# trading-mcp
+# Crypto Options Desk MCP
 
 A **Model Context Protocol (MCP)** server that gives an LLM agent one typed, audited, read-only-by-default
 tool surface over a quant crypto-options desk's analytics: gamma exposure, vanna, skew, vol surface,
